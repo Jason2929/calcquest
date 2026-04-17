@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>CalcQuest · Derivadas e Integrales</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0d0d1a;--card:#1a1a35;--card2:#12122a;
+  --accent:#7c6fff;--accent2:#ff6b9d;
+  --green:#4ade80;--red:#f87171;--yellow:#fbbf24;
+  --text:#f0f0ff;--muted:#8888aa;--r:14px;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Segoe UI',system-ui;
+  min-height:100dvh;
+  display:flex;
+  justify-content:center;
+  padding:10px;
+}
+
+#app{width:100%;max-width:460px}
+
+/* BOTONES TOUCH */
+button, .choice {
+  touch-action: manipulation;
+}
+
+/* BOTONES */
+.btn{
+  width:100%;
+  padding:18px;
+  border-radius:14px;
+  border:none;
+  font-size:1.1rem;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent),#9d55ff);
+  color:#fff;
+}
+
+/* PROBLEMA */
+.problem-card{
+  background:var(--card);
+  padding:16px;
+  border-radius:14px;
+  margin-bottom:10px;
+  text-align:center;
+}
+
+.math{
+  font-size:1.8rem;
+}
+
+/* OPCIONES */
+.choices{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.choice{
+  background:var(--card);
+  border-radius:14px;
+  padding:15px;
+  min-height:80px;
+  font-size:1.3rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid transparent;
+}
+
+.choice.correct{background:#0d2a1a;color:var(--green)}
+.choice.wrong{background:#2a0d0d;color:var(--red)}
+
+/* QUITAR HOVER EN CEL */
+@media (hover:none){
+  .choice:hover{
+    border-color:transparent;
+    background:var(--card);
+  }
+}
+</style>
+</head>
+
+<body>
+<div id="app">
+
+<h1 style="text-align:center;margin:20px 0;">CalcQuest</h1>
+
+<div class="problem-card">
+  <div id="question">Cargando...</div>
+</div>
+
+<div class="choices" id="choices"></div>
+
+<button class="btn btn-primary" onclick="newQuestion()">Siguiente</button>
+
+</div>
+
+<script>
+function ri(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+
+function genQuestion(){
+  let a=ri(1,10);
+  let b=ri(1,5);
+  return {
+    q: `d/dx (${a}x^${b})`,
+    correct: `${a*b}x^${b-1}`,
+    wrong: [
+      `${a}x^${b-1}`,
+      `${a*b}x^${b}`,
+      `${a+b}x^${b-1}`
+    ]
+  }
+}
+
+function newQuestion(){
+  const data=genQuestion();
+  document.getElementById("question").innerHTML=data.q;
+
+  const container=document.getElementById("choices");
+  container.innerHTML="";
+
+  let options=[data.correct,...data.wrong];
+  options.sort(()=>Math.random()-0.5);
+
+  options.forEach(opt=>{
+    const btn=document.createElement("button");
+    btn.className="choice";
+    btn.innerHTML=opt;
+
+    // CLICK
+    btn.addEventListener("click",()=>check(btn,opt,data.correct));
+
+    // TOUCH (clave para celular)
+    btn.addEventListener("touchstart",(e)=>{
+      e.preventDefault();
+      check(btn,opt,data.correct);
+    });
+
+    container.appendChild(btn);
+  });
+}
+
+function check(btn,selected,correct){
+  const all=document.querySelectorAll(".choice");
+  all.forEach(b=>b.disabled=true);
+
+  if(selected===correct){
+    btn.classList.add("correct");
+  }else{
+    btn.classList.add("wrong");
+    all.forEach(b=>{
+      if(b.innerHTML===correct) b.classList.add("correct");
+    });
+  }
+}
+
+newQuestion();
+</script>
+
+</body>
+</html>
